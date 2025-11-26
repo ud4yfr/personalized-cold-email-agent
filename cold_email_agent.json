@@ -1,0 +1,869 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3bf3d3e2-4d76-44b3-93fd-959b4e0535f4",
+      "name": "Remove Duplicate URLs",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1120,
+        37.5
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        13.75
+      ],
+      "id": "9d750767-0485-4881-bbcf-9fe7367d78de",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "cssSelector": "a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2770,
+        535
+      ],
+      "id": "373c8931-2cbe-4e8a-a72e-1b1296650556",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        460,
+        211.25
+      ],
+      "id": "b9ea3955-8129-4846-a5f6-68293e8b1d67",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9a75bc22-f6b3-426e-96df-db5e319e5cd5",
+              "leftValue": "={{ $json.links }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        37.5
+      ],
+      "id": "b0989637-6a5c-47a0-86c6-d1b802366581",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Loop Over Items').item.json.website_url }}{{ $json.links }}",
+        "options": {}
+      },
+      "id": "6dc99834-6c3a-47c7-a400-201ac0a5cdd7",
+      "name": "Request web page for URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1560,
+        37.5
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data ? $json.data : \"<div>empty</div>\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        37.5
+      ],
+      "id": "cca90e3c-e34d-4505-a72b-e651168c2f8b",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        37.5
+      ],
+      "id": "132b55d8-833b-4276-8c85-5728a4698f1a",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.organization.website_url }}",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "b1c8c6e5-35a8-4a65-bb30-be0d67663da3",
+      "name": "Scrape Home",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2440,
+        535
+      ],
+      "executeOnce": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output.abstract"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        37.5
+      ],
+      "id": "aa0be562-0fa3-4621-8f12-fa23269b86ed",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MtVSTy1dCWLFCbzGfc81uTYp_e2ldW1JjzHLcOE7M2E",
+          "mode": "list",
+          "cachedResultName": "Icebreaker Generator",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MtVSTy1dCWLFCbzGfc81uTYp_e2ldW1JjzHLcOE7M2E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 119541507,
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MtVSTy1dCWLFCbzGfc81uTYp_e2ldW1JjzHLcOE7M2E/edit#gid=119541507"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "location": "={{ $('Edit Fields').item.json.location }}",
+            "first_name": "={{ $('Edit Fields').item.json.first_name }}",
+            "last_name": "={{ $('Edit Fields').item.json.last_name }}",
+            "email": "={{ $('Edit Fields').item.json.email }}",
+            "website_url": "={{ $('Edit Fields').item.json.website_url }}",
+            "phone_number": "={{ $('Edit Fields').item.json.phone_number }}",
+            "multiline_icebreaker": "={{ $json.output.icebreaker }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website_url",
+              "displayName": "website_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "multiline_icebreaker",
+              "displayName": "multiline_icebreaker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3100,
+        37.5
+      ],
+      "id": "c707cd64-5438-4b6c-89bd-5794b28e7567",
+      "name": "Add Row",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/jljBwyyQakqrL1wae/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer apify_api_IS772gErK8aVzgXkOzT4QqNyc5k2eI1h0eKX"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"getPersonalEmails\": true,\n  \"getWorkEmails\": true,\n  \"totalRecords\": 500,\n  \"url\": \"{{ $json.URL }}\"\n}\n\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        535
+      ],
+      "id": "112d609a-f0da-49a2-9b0f-7edb74a60622",
+      "name": "Call Apify Scraper"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MtVSTy1dCWLFCbzGfc81uTYp_e2ldW1JjzHLcOE7M2E",
+          "mode": "list",
+          "cachedResultName": "Icebreaker Generator",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MtVSTy1dCWLFCbzGfc81uTYp_e2ldW1JjzHLcOE7M2E/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "search URLs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MtVSTy1dCWLFCbzGfc81uTYp_e2ldW1JjzHLcOE7M2E/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1560,
+        535
+      ],
+      "id": "632b28c0-180f-4708-a212-8a15e55a43cf",
+      "name": "Get Search URL",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7737c7a-b5b6-44a1-9f0d-361f0ac7a459",
+              "name": "first_name",
+              "value": "={{ $('Only Websites & Emails').item.json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "e867e03d-60e6-4dee-b1ac-12c517fd8d6c",
+              "name": "last_name",
+              "value": "={{ $('Only Websites & Emails').item.json.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d522ec31-e21e-417e-ab78-f4a49019e544",
+              "name": "email",
+              "value": "={{ $('Only Websites & Emails').item.json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "8f1ddf8d-7df8-433e-a687-c1a81cced4e1",
+              "name": "website_url",
+              "value": "={{ $('Only Websites & Emails').item.json.organization.website_url }}",
+              "type": "string"
+            },
+            {
+              "id": "9ccf7442-97cc-4840-aff0-7919e4119027",
+              "name": "headline",
+              "value": "={{ $('Only Websites & Emails').item.json.headline }}",
+              "type": "string"
+            },
+            {
+              "id": "d2eb1588-87d2-43b2-8356-7bfe754c7707",
+              "name": "location",
+              "value": "={{ $('Only Websites & Emails').item.json.city }} {{ $('Only Websites & Emails').item.json.country }}",
+              "type": "string"
+            },
+            {
+              "id": "b9ca5dad-9733-4b62-aeb8-c5675bc423d9",
+              "name": "phone_number",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "40fd7130-c65d-4826-a713-ecca24d23b07",
+              "name": "links",
+              "value": "={{ $json.links }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3100,
+        535
+      ],
+      "id": "f0af2803-0b09-438f-b420-1c86607a1ee3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fc44a289-8c50-4682-8b50-c2e63cfc6514",
+              "leftValue": "={{ $json.organization.website_url }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f8e675e8-99cc-4c30-92e3-e08a659cff9b",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2110,
+        535
+      ],
+      "id": "50d6e1a7-20e5-48a2-afe0-afb584962746",
+      "name": "Only Websites & Emails"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3320,
+        385
+      ],
+      "id": "31576cf8-bdef-4ed5-ae8e-f4170a51d733",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst updatedItems = items.map((item) => {\n  const link = item?.json?.links;\n\n  if (typeof link === \"string\") {\n    // Case: starts with \"/\" → already relative\n    if (link.startsWith(\"/\")) {\n      item.json.links = link;\n    } \n    \n    // Case: absolute URL (http or https)\n    else if (link.startsWith(\"http://\") || link.startsWith(\"https://\")) {\n      try {\n        const url = new URL(link);\n        let path = url.pathname;\n\n        // Strip trailing slash unless root \"/\"\n        if (path !== \"/\" && path.endsWith(\"/\")) {\n          path = path.slice(0, -1);\n        }\n\n        item.json.links = path || \"/\";\n      } catch (e) {\n        // On parse error, keep original\n        item.json.links = link;\n      }\n    }\n\n    // Fallback: not relative or absolute, leave as-is\n    else {\n      item.json.links = link;\n    }\n  }\n\n  return item;\n});\n\nreturn updatedItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        37.5
+      ],
+      "id": "25f0a917-2019-4ce4-bd3f-cc2b1266fbd3",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        255
+      ],
+      "id": "452b29fe-b974-4eb9-97ee-dcab688bb168",
+      "name": "OpenRouter Chat Model"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"abstract\": \"your abstract goes here\"\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2080,
+        60
+      ],
+      "id": "78bb2064-40c2-450b-9f38-c19b23e0badd",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=We just scraped a series of web pages for a business called . Your task is to take their summaries and turn them into catchy, personalized openers for a cold email campaign to imply that the rest of the campaign is personalized.\n\nYou'll return your icebreakers in the following JSON format:\n\n{\"icebreaker\":\"Hey {name}. Love {thing}—also doing/like/a fan of {otherThing}. Wanted to run something by you.\\n\\nI hope you'll forgive me, but I creeped you/your site quite a bit, and know that {anotherThing} is important to you guys (or at least I'm assuming this given the focus on {fourthThing}). I put something together a few months ago that I think could help. To make a long story short, it's an outreach system that uses AI to find people hiring website devs. Then pitches them with templates (actually makes them a demo website). Costs just a few cents to run, very high converting, and I think it's in line with {someImpliedBeliefTheyHave}\"}\n\nRules:\n- Write in a spartan/laconic tone of voice.\n- Make sure to use the above format when constructing your icebreakers. We wrote it this way on purpose.\n- Shorten the company name wherever possible (say, \"XYZ\" instead of \"XYZ Agency\"). More examples: \"Love AMS\" instead of \"Love AMS Professional Services\", \"Love Mayo\" instead of \"Love Mayo Inc.\", etc.\n- Do the same with locations. \"San Fran\" instead of \"San Francisco\", \"BC\" instead of \"British Columbia\", etc.\n- For your variables, focus on small, non-obvious things to paraphrase. The idea is to make people think we *really* dove deep into their website, so don't use something obvious. Do not say cookie-cutter stuff like \"Love your website!\" or \"Love your take on marketing!\".\n\n# Example - \n\nProfile: Aina Rakotoarinaly, CEO founder - Maki Agency / Ti'bouffe, Maki agency, outsourcing/offshoring, Antananarivo, Madagascar\n\nWebsite: \n\nThis webpage presents Maki Agency, a professional digital outsourcing company based in Madagascar that specializes in tailored web development, integration, design, SEO, content creation, community management, and more. The agency offers a range of white-label and dedicated resource solutions, targeting businesses that wish to outsource various digital projects. Maki Agency emphasizes its team's versatile technical expertise across major web technologies, including CSS, HTML, JQuery, WordPress, PHP, WooCommerce, Laravel, and Odoo. The company positions itself as an ideal partner for comprehensive digital support, ensuring that client's digital and branding needs are met through experienced personnel and rigorous project management.\\n\\nThe website details the specific services provided, such as graphic and web design (logos, banners, retouching), web integration (landing pages, newsletters, site layouts), development (showcase sites, e-commerce, intranets, bespoke applications, maintenance), content writing (SEO-optimized texts, articles, product sheets, social media posts), search engine optimization (audits, optimizations, submissions), and social media management. The agency highlights its strengths in quality of work, experience, and discretion, especially in white-label arrangements. Visitors are encouraged to contact Maki Agency for new or existing projects, and convenient contact options (phone, QR codes, social media, chat) are provided for initiating discussions.\n\nThis page presents Maki Agency, a Madagascar-based digital agency specializing in web outsourcing and subcontracting services. The agency emphasizes its experience and dedicated team capable of handling diverse digital tasks such as web development, design, SEO, content writing, integration, community management, and maintenance. Maki Agency offers both white-label and dedicated resource solutions for clients seeking to externalize parts of their workflow to a specialized offshore partner. The descriptions highlight the agency's proficiency in popular web technologies, frameworks, and CMS platforms (such as HTML, CSS, PHP, WordPress, Laravel, WooCommerce, and Odoo), as well as its ability to execute projects ranging from landing pages, e-commerce platforms, and intranets to detailed graphic design and content creation.\\n\\nThe site underscores Maki Agency's core values and competitive advantages, such as meticulous attention to detail, experienced professionals, creativity, discretion, and a client-focused approach. It provides detailed breakdowns of service offerings, ranging from graphic materials (logos, flyers, banners), technical integration, app and website development, staff outsourcing (developers, designers, writers), SEO strategies, community management, and digital content production. Contact details and multiple avenues for communication (phone, WhatsApp, Skype, QR codes) are prominently featured, along with encouragements for clients to reach out for consultations or ongoing projects requiring outsourcing. The agency also highlights its longevity and adaptability in the digital sector, supporting clients across various industries and digital competencies\n\nFor which you'll do something like, \n\n\n{\"icebreaker\":\"Hey Aina,\\n\\nLove what you're doing at Maki. Also doing some outsourcing right now, wanted to run something by you.\\n\\nSo I hope you'll forgive me, but I creeped you/Maki quite a bit. I know that discretion is important to you guys (or at least I'm assuming this given the part on your website about white-labelling your services) and I put something together a few months ago that I think could help. To make a long story short, it's an outreach system that uses AI to find people hiring website devs. Then pitches them with templates (actually makes them a white-labelled demo website). Costs just a few cents to run, very high converting, and I think it's in line with Maki's emphasis on scalability.\"}\n\n\nHere’s the dynamic data for this recipient:\n\nProfile: {{ $('Loop Over Items').item.json.first_name }} {{ $('Loop Over Items').item.json.last_name }} — {{ $('Loop Over Items').item.json.headline }}\nWebsite Summary:\n{{ $json.abstract.join(\"\\n\") }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You’re a helpful, intelligent sales assistant.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        -160
+      ],
+      "id": "e2658488-fe23-4ead-b368-212e7cf4a47c",
+      "name": "Generate Icebreaker"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"icebreaker\":\"Hey Aina—Love what you’re doing…\"\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2740,
+        60
+      ],
+      "id": "ff4157ea-1ec6-4c73-9c00-285782c7272c",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2740,
+        255
+      ],
+      "id": "1136840c-a242-4f02-9670-bf904f870618",
+      "name": "OpenRouter Chat Model1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You’re a helpful, intelligent website-scraping assistant.\n\nBelow is the raw Markdown scrape of a website page, stored in the `data` variable. It includes all of the page’s content—text, links, images, etc. Your task is to read that Markdown and then produce a concise, two-paragraph abstract of what this page is about.\n\nReturn **only** valid JSON in this exact format:\n{\"abstract\":\"your abstract goes here\"}\n\nRules:\n- Make it as detailed as an academic abstract.\n- Use a straightforward, spartan tone.\n- If there’s no meaningful content, just return `\"abstract\":\"no content\"`.\n\nHere’s the scraped Markdown:\n{{ $json.data }}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        -160
+      ],
+      "id": "78793a2e-4b52-4e78-aef2-fd69ef5ca8d0",
+      "name": "Summarize Website Page"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Search URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request web page for URL": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate URLs": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Summarize Website Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Request web page for URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Home": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Generate Icebreaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Apify Scraper": {
+      "main": [
+        [
+          {
+            "node": "Only Websites & Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Search URL": {
+      "main": [
+        [
+          {
+            "node": "Call Apify Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Websites & Emails": {
+      "main": [
+        [
+          {
+            "node": "Scrape Home",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Row": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Website Page",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Summarize Website Page",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Icebreaker",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Icebreaker",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Icebreaker": {
+      "main": [
+        [
+          {
+            "node": "Add Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Website Page": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "meta": {
+    "instanceId": "383fef168d2e18d385520446ebda13c4f81cc2344aefc69d8fe06d5a19cfb7ee"
+  },
+  "tags": []
+}
